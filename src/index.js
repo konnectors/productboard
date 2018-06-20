@@ -1,3 +1,7 @@
+process.env.SENTRY_DSN =
+  process.env.SENTRY_DSN ||
+  'https://92eb3c5e4fd847018d39d78d760c229f:f4819b906d66453d97f00254400fa621@sentry.cozycloud.cc/78'
+
 const { BaseKonnector, saveBills, log } = require('cozy-konnector-libs')
 const cheerio = require('cheerio')
 const request = require('request-promise').defaults({ jar: true })
