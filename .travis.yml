@@ -1,0 +1,41 @@
+language: node_js
+node_js:
+- '8'
+env:
+  global:
+  - GH_USER_EMAIL="travis@example.org"
+  - GH_USER_NAME="cozy-bot"
+  - DEPLOY_REPOSITORY="git@github.com:konnectors/productboard.git"
+  - secure: jOn0nHjHbuw89oBsF5XvltU6oe6Ou87XaJ9kxwd9shEPgALPxT5ENQDa8oC1ANuRmVTjpVNkxMAI3AkaEoZyHjQS+MBEQXejTYpd0+C8cRjsUnCbcsA9BBL8TDRtIDsN2pbL0bDLFbjQbwDgyuRmir+FFUStXwHe39KXCTRw1D4oZChhOd1X9nRypVk3DegVMXENxG4Xfrez/SCrvF5gI9nf14ayw78Qo5HSFDgSfZZ5UCuAxjIfCL4bku5JPA2YFR1jHff9jiSxjQycfDxRYS9FyUgwCnR2iq8EFHSxqgdNZSrXN9joxu0KlZxRS3jzh/TsYVT1JkUVaXZNeLxvktchGNw2dZBE3z7WiZh3CrGQPGYg1TPM1UEzaFgM/7UNavyEjoQUuqu1anaOQ0QCHTkXA8GOS36/j9s593ddSYK2edE9oFLBz/SbbbikFfs8nDlT8XxZbOXRX7HHtO1xUya9BCFJg14eovIN0MvwjDwD6nMdgQXc/ZjFDPhpbuqCaKF5u0RaRmGlGcWCHJVGYYAlJHyH5DdMMfBUJBt9Bj9tMR4s882Ocnvzp7MYTBac3NcWLEXYci2hT79ybaT1QmixgsDXBXmFUAfIhjLtIC4/9OcsYGa58ZzepXKPR0zNBZeQXYANYO9DbH+yVMzLw/eD03Pch+xPPzoSKqam/wE=
+cache:
+  yarn: true
+  directories:
+  - node_modules
+branches:
+  except:
+  - build
+  - latest
+script:
+- yarn lint
+- yarn build
+- yarn run check
+deploy:
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
+  on:
+    branch: master
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
+  on:
+    tags: true
+before_install:
+- openssl aes-256-cbc -K $encrypted_37b8f22c4d5d_key -iv $encrypted_37b8f22c4d5d_iv
+  -in github_deploy_key.enc -out /tmp/github_deploy_key -d
+- eval "$(ssh-agent -s)"
+- chmod 600 /tmp/github_deploy_key
+- ssh-add /tmp/github_deploy_key
+after_deploy:
+- rm /tmp/github_deploy_key
+- ssh-add -D
