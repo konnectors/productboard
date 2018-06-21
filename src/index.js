@@ -4,6 +4,7 @@ process.env.SENTRY_DSN =
 
 const { BaseKonnector, saveBills, log } = require('cozy-konnector-libs')
 const cheerio = require('cheerio')
+const moment = require('moment')
 const request = require('request-promise').defaults({ jar: true })
 
 module.exports = new BaseKonnector(start)
@@ -12,7 +13,9 @@ async function start(fields) {
   log('info', 'Authenticating ...')
   const documents = await authenticate(fields.login, fields.password)
   log('info', 'Saving data to Cozy')
-  await saveBills(documents, fields.folderPath, {})
+  await saveBills(documents, fields.folderPath, {
+    identifiers: ['productboard']
+  })
 }
 
 function authenticate(username, password) {
@@ -41,12 +44,18 @@ function authenticate(username, password) {
       return request(options)
     })
     .then(body => {
-      return body.subscription_invoices.map(invoice => ({
-        amount: invoice.total,
-        date: invoice.created_at,
-        currency: '€',
-        vendor: 'ProductBoard',
-        fileurl: invoice.invoice_url
-      }))
+      return body.subscription_invoices.map(invoice => {
+        const dateObj = moment(invoice.created_at)
+        const refund = ( invoice.total < 0)
+        return {
+          amount: Math.abs(invoice.total),
+          isRefund: refund,
+          date: dateObj.toDate(),
+          currency: '€',
+          vendor: 'ProductBoard',
+          fileurl: invoice.invoice_url,
+          filename: `${dateObj.format('YYYY-MM-DD')}_${invoice.total}€_${invoice.id}.pdf`
+        }
+      })
     })
 }
