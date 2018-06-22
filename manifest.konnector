@@ -8,7 +8,7 @@
   "source": "git://github.com/konnectors/productboard.git",
   "editor": "Cozy",
   "vendor_link": "https://productboard.com",
-  "categories": ["other"],
+  "categories": ["online_services"],
   "fields": {
     "login": {
       "type": "text"
