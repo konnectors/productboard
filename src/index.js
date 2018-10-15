@@ -46,7 +46,7 @@ function authenticate(username, password) {
     .then(body => {
       return body.subscription_invoices.map(invoice => {
         const dateObj = moment(invoice.created_at)
-        const refund = ( invoice.total < 0)
+        const refund = invoice.total < 0
         return {
           amount: Math.abs(invoice.total),
           isRefund: refund,
@@ -54,7 +54,9 @@ function authenticate(username, password) {
           currency: '€',
           vendor: 'ProductBoard',
           fileurl: invoice.invoice_url,
-          filename: `${dateObj.format('YYYY-MM-DD')}_${invoice.total}€_${invoice.id}.pdf`
+          filename: `${dateObj.format('YYYY-MM-DD')}_${invoice.total}€_${
+            invoice.id
+          }.pdf`
         }
       })
     })
